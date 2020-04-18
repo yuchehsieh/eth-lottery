@@ -43,5 +43,19 @@ describe('a lottery contract', () => {
         assert.equal(accounts[1], players[1]);
         assert.equal(accounts[2], players[2]);
     });
+    it('require minimum amount of ether to enter', async () => {
+        try {
+            await lottery.methods.enter().send({from: accounts[0], value: 10 /* unit: wei, WILL FAILED */});
+
+            /** 如果上面的程式不 throw error 到 catch block
+             * 就會執行 assert(false) 這個 test 就會失敗 **/
+            assert(false);
+        } catch(e) {
+            /** assert.ok() check existence **/
+            /** assert() check truthiness **/
+            assert(e);
+        }
+    })
+
 });
 
