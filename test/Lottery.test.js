@@ -13,7 +13,6 @@ let accounts;
 
 beforeEach(async () => {
     accounts = await web3.eth.getAccounts();
-    console.log(accounts);
     lottery = await new web3.eth.Contract(JSON.parse(interface))
         .deploy({data: bytecode})
         .send({from: accounts[0], gas: 1000000});
@@ -55,7 +54,28 @@ describe('a lottery contract', () => {
             /** assert() check truthiness **/
             assert(e);
         }
-    })
+    });
+    it('manager could pick a winner', async () => {
+        try {
+            await lottery.methods.enter().send({ from: accounts[0], value: web3.utils.toWei('0.02', 'ether') });
+            await lottery.methods.enter().send({ from: accounts[1], value: web3.utils.toWei('0.02', 'ether') });
+            await lottery.methods.enter().send({ from: accounts[2], value: web3.utils.toWei('0.02', 'ether') });
 
+            await lottery.methods.pickWinner().send({from: accounts[0]});
+
+            assert(true);
+        } catch(e) {
+            assert(false);
+        }
+    });
+    it('only manager could pick the winner', async () => {
+        try {
+            // don't have to real enter the game, because the restricted modifier will kick you out
+            await lottery.methods.pickWinner().send({from: accounts[1]});
+            assert(false);
+        } catch(e) {
+            assert(e);
+        }
+    })
 });
 
